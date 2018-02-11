@@ -43,7 +43,7 @@ Afrer successful compiling you can start the script as standalone app.
 
 ## Where you can get needed files for parsing
 
-On this link - [NCEP Reanalysis pressure](ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/pressure/) - ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/pressure/. ***This script works only with air.yyyy.nc files!***
+On this link - NCEP Reanalysis pressure - ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/pressure/. ***This script works only with air.yyyy.nc files!***
 
 ## Scheme of the result data
 For result file used CSV ASCII file (delimeter - ","). Columns writes as following:
