@@ -32,6 +32,15 @@ Tested compile with [pyinstaller](http://www.pyinstaller.org). For compile pleas
 
 Afrer successful compiling you can start the script as standalone app. 
 
+## Scheme of the result data
+For result file used CSV ASCII file (delimeter - ","). Columns writes as following:
+
+1. Time
+2. Temp of air, degK
+3. Level, mBar
+4. Latitude
+5. Longitude
+
 ## Feedback
 
 Tech questions - [Danil Borchevkin](http://github.com/DanilBorchevkin)
