@@ -20,6 +20,14 @@ BSD-2 Clause. Please see LICENCE file
 
 * ***/README.md*** - this file
 
+## Dependencies
+
+* [xarray](http://xarray.pydata.org/en/stable/)
+
+* tkinter (built-in Python 3)
+
+* csv (built-in Python 3)
+
 ## How to start the script
 
 For run this script you need Python 3 dist.
@@ -32,10 +40,14 @@ Tested compile with [pyinstaller](http://www.pyinstaller.org). For compile pleas
 
 Afrer successful compiling you can start the script as standalone app. 
 
+## Where you can get needed files for parsing
+
+On this link - [NCEP Reanalysis pressure](ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/pressure/). ***This script works only with air.yyyy.nc files!***
+
 ## Scheme of the result data
 For result file used CSV ASCII file (delimeter - ","). Columns writes as following:
 
-1. Time
+1. Time in human readable format
 2. Temp of air, degK
 3. Level, mBar
 4. Latitude
