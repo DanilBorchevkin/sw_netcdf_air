@@ -99,3 +99,10 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Sample directory
+/sample
+
+# Any sample NetCDF file or result of parsing
+*.nc 
+*.csv
