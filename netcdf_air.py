@@ -6,8 +6,10 @@ NetCDF parser for air temperature by time with constant level, lat and long
 """
 
 import xarray as xr
+import numpy as np
 import csv
 import glob
+import os.path
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -30,7 +32,7 @@ class Application(tk.Frame):
         self.createWidgets()
 
     def createWidgets(self):
-        # First row
+        # ------------------------------First row------------------------------
         self.sourcePathLabel = tk.Label(self.master)
         self.sourcePathLabel["text"] = "Source folder:"
         self.sourcePathLabel.grid(row=0, column=0, padx=4, pady=4)
@@ -44,45 +46,78 @@ class Application(tk.Frame):
         self.sourcePathButton["command"] = self.chooseSourcePath
         self.sourcePathButton.grid(row=0, column=2, padx=4, pady=4)
         
-        # Second row
-        self.targetPathLabel = tk.Label(self.master)
-        self.targetPathLabel["text"] = "Targer file:"
-        self.targetPathLabel.grid(row=1, column=0, padx=4, pady=4)
+        # ----------------------------Second row-------------------------------
+        self.targetFileLabel = tk.Label(self.master)
+        self.targetFileLabel["text"] = "Target file:"
+        self.targetFileLabel.grid(row=1, column=0, padx=4, pady=4)
 
-        self.targetPathInput = tk.Entry(self.master)
-        self.targetPathInput["width"] = 50
-        self.targetPathInput.grid(row=1, column=1, padx=4, pady=4)
+        self.targetFileInput = tk.Entry(self.master)
+        self.targetFileInput["width"] = 50
+        self.targetFileInput.grid(row=1, column=1, padx=4, pady=4)
         
-        self.targetPathButton = tk.Button(self.master)
-        self.targetPathButton["text"] = "Browse"
-        self.targetPathButton["command"] = self.chooseTargetFile
-        self.targetPathButton.grid(row=1, column=2, columnspan=3, padx=4, pady=4)
+        self.targetFileButton = tk.Button(self.master)
+        self.targetFileButton["text"] = "Browse"
+        self.targetFileButton["command"] = self.chooseTargetFile
+        self.targetFileButton.grid(row=1, column=2, columnspan=3, padx=4, pady=4)
         
-        # Third row
-        #self.prefixLabel = tk.Label(self.master)
-        #self.prefixLabel["text"] = "Prefix for files:"
-        #self.prefixLabel.grid(row=2, column=0, padx=4, pady=4)
+        # -------------------------Third row-----------------------------------
+        self.latLabel = tk.Label(self.master)
+        self.latLabel["text"] = "Latitude:"
+        self.latLabel.grid(row=2, column=0, padx=4, pady=4)
         
-        #self.prefixInput = tk.Entry(self.master)
-        #self.prefixInput["width"] = 50
-        #self.prefixInput.grid(row=2, column=1, padx=4, pady=4)
+        self.latInput = tk.Entry(self.master)
+        self.latInput["width"] = 50
+        self.latInput.insert(0, "50.0")
+        self.latInput.grid(row=2, column=1, padx=4, pady=4)
+        
+        self.latDimLabel = tk.Label(self.master)
+        self.latDimLabel["text"] = "Deg"
+        self.latDimLabel.grid(row=2, column=2, padx=4, pady=4)
+        
+        # -------------------------Fourth row----------------------------------
+        self.longLabel = tk.Label(self.master)
+        self.longLabel["text"] = "Longitude:"
+        self.longLabel.grid(row=3, column=0, padx=4, pady=4)
+        
+        self.longInput = tk.Entry(self.master)
+        self.longInput["width"] = 50
+        self.longInput.insert(0, "25.0")
+        self.longInput.grid(row=3, column=1, padx=4, pady=4)
+        
+        self.longDimLabel = tk.Label(self.master)
+        self.longDimLabel["text"] = "Deg"
+        self.longDimLabel.grid(row=3, column=2, padx=4, pady=4)
+                
+        # -------------------------Fith row------------------------------------        
+        self.levelLabel = tk.Label(self.master)
+        self.levelLabel["text"] = "Level:"
+        self.levelLabel.grid(row=4, column=0, padx=4, pady=4)
+        
+        self.levelInput = tk.Entry(self.master)
+        self.levelInput["width"] = 50
+        self.levelInput.insert(0, "10.0")
+        self.levelInput.grid(row=4, column=1, padx=4, pady=4)
+        
+        self.levelDimLabel = tk.Label(self.master)
+        self.levelDimLabel["text"] = "mBar"
+        self.levelDimLabel.grid(row=4, column=2, padx=4, pady=4)
 
-        # Fouth row
+        # ------------------------Sixth row------------------------------------
         self.statusLabel = tk.Label(self.master)
         self.statusLabel["text"] = "Select path with NetCDF files and output filename"
-        self.statusLabel.grid(row=3, column=0, columnspan=3, padx=4, pady=4)
+        self.statusLabel.grid(row=5, column=0, columnspan=3, padx=4, pady=4)
 
-        # Fifth row
+        # --------------------------Seventh row--------------------------------
         self.parseButton = tk.Button(self.master)
         self.parseButton["text"] = "Parse Data"
         self.parseButton["command"] = self.parseData
-        self.parseButton.grid(row=4, column=0, columnspan=3, padx=4, pady=4)
+        self.parseButton.grid(row=6, column=0, columnspan=3, padx=4, pady=4)
         
     def chooseTargetFile(self):
-        selectedPath = filedialog.asksaveasfilename(defaultextension=".csv", filetypes = (("CSV file","*.csv"),("all files","*.*")))
-        if(selectedPath != ""):
-            self.targetPathInput.delete(0, tk.END)
-            self.targetPathInput.insert(0, selectedPath)    
+        selectedFile = filedialog.asksaveasfilename(defaultextension=".csv", filetypes = (("CSV file","*.csv"),("all files","*.*")))
+        if(selectedFile != ""):
+            self.targetFileInput.delete(0, tk.END)
+            self.targetFileInput.insert(0, selectedFile)    
             
     def chooseSourcePath(self):
         selectedPath = filedialog.askdirectory()
@@ -91,15 +126,47 @@ class Application(tk.Frame):
             self.sourcePathInput.insert(0, selectedPath)
     
     def parseData(self):
-        targetFile = self.targetPathInput.get()
+        # Validation of source path
         sourcePath = self.sourcePathInput.get() + "\\"
-        
-        if (targetFile == "") and (sourcePath == ""):
-            messagebox.showwarning("Empty paths", "Selected paths are empty. Please select it properly")
+        if (sourcePath.lstrip() == "\\"):
+            messagebox.showwarning("Wrong path to source", "Please select valid source path")
             return
         
-        routineOverAllFilesInPath(sourcePath, targetFile)
-        messagebox.showinfo("Parsing was finished", "Parsing was finished and result was saving to " + targetFile)
+        # Validation of target file
+        targetFile = self.targetFileInput.get()
+        if (targetFile.lstrip() == ""):
+            messagebox.showwarning("Wrong target file", "Please select target file")
+            return
+        
+        # Validation latitude
+        try:
+            lat = float(self.latInput.get())
+        except:
+            messagebox.showwarning("Wrong latitude", "Please enter valid latitude")
+            self.latInput.delete(0, tk.END)
+            return
+        
+        # Validation longitude
+        try:
+            long = float(self.longInput.get())
+        except:
+            messagebox.showwarning("Wrong longitude", "Please enter valid longitude")
+            self.longInput.delete(0, tk.END)
+            return
+        
+        # Validation level
+        try:
+            level = float(self.levelInput.get())
+        except:
+            messagebox.showwarning("Wrong level", "Please enter valid level")
+            self.levelInput.delete(0, tk.END)
+            return
+        
+        try:
+            routineOverAllFilesInPath(sourcePath, targetFile, lat, long, level)
+            messagebox.showinfo("Parsing was finished", "Parsing was finished and result was saving to " + targetFile)
+        except KeyError:
+            messagebox.showwarning("Key Error", "Please check lat, long and level and available for values")
 
 def getFilesInFolder(pathToFolder, fileFormat):
     query = pathToFolder + "*." + fileFormat
@@ -118,20 +185,22 @@ def selectDataAndSave(fin, lat, long, level, fout):
     level = dsloc['level'].data
     lat = dsloc['lat'].data
     long = dsloc['lon'].data
-       
+    
+    # There is some tricky moment. If file is exist then data will append to file
+    
     # Append data to CSV file
     with open(fout, 'a') as csvfile:
         csvWriter = csv.writer(csvfile, delimiter=",", lineterminator="\n")
         for i in range(len(time)):
             csvWriter.writerow([time[i], format(air[i], ".1f"), level, lat, long])
             
-def routineOverAllFilesInPath(sourcePath, targetFile):
+def routineOverAllFilesInPath(sourcePath, targetFile, lat, long, level):
     # Get list in files
     files = getFilesInFolder(sourcePath, "nc")
     
     # Iteration over all files
     for file in files:
-        selectDataAndSave(fin=file, lat=90.0, long=0.0, level=10.0, fout=targetFile)
+        selectDataAndSave(fin=file, lat=lat, long=long, level=level, fout=targetFile)
     
 def main():
     root = tk.Tk()

@@ -24,10 +24,6 @@ BSD-2 Clause. Please see LICENCE file
 
 * [xarray](http://xarray.pydata.org/en/stable/)
 
-* tkinter (built-in Python 3)
-
-* csv (built-in Python 3)
-
 ## How to start the script
 
 For run this script you need Python 3 dist.
@@ -36,7 +32,12 @@ For start the script please execute ```python netcdf_air.py```
 
 ## How to compile the script into a execute file
 
-Tested compile with [pyinstaller](http://www.pyinstaller.org). For compile please run ```pyinstaller lidarStrobeParses.py```
+Tested compile with [pyinstaller](http://www.pyinstaller.org). For compile please run 
+
+```
+pyi-makespec --onefile netcdf_air.py
+pyinstaller lidarStrobeParses.py
+```
 
 Afrer successful compiling you can start the script as standalone app. 
 

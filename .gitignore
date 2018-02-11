@@ -106,3 +106,9 @@ ENV/
 # Any sample NetCDF file or result of parsing
 *.nc 
 *.csv
+
+# Exclude PyInstaller files
+*.spec
+/build
+/dist
+/__pycache__
