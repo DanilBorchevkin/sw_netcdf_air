@@ -190,7 +190,7 @@ def selectDataAndSave(fin, lat, long, level, fout):
     
     # Append data to CSV file
     with open(fout, 'a') as csvfile:
-        csvWriter = csv.writer(csvfile, delimiter=",", lineterminator="\n")
+        csvWriter = csv.writer(csvfile, delimiter="    ", lineterminator="\n")
         for i in range(len(time)):
             csvWriter.writerow([time[i], format(air[i], ".1f"), level, lat, long])
             
