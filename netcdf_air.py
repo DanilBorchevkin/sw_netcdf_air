@@ -6,10 +6,8 @@ NetCDF parser for air temperature by time with constant level, lat and long
 """
 
 import xarray as xr
-import numpy as np
 import csv
 import glob
-import os.path
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -177,22 +175,23 @@ def getFilesInFolder(pathToFolder, fileFormat):
 def selectDataAndSave(fin, lat, long, level, fout):
     # Open dataset
     ds = xr.open_dataset(fin)
-    
+        
     # Select air data by time with constant lat, long and level
     dsloc = ds.sel(lat=lat, lon=long, level=level)
-    time = dsloc['time'].data
-    air = dsloc['air'].data
-    level = dsloc['level'].data
-    lat = dsloc['lat'].data
-    long = dsloc['lon'].data
     
+    # Resample dataset to day mean values
+    dsday = dsloc.resample("D", dim="time", how="mean")
+    
+    time = dsday['time'].data
+    air = dsday['air'].data
+
     # There is some tricky moment. If file is exist then data will append to file
-    
     # Append data to CSV file
     with open(fout, 'a') as csvfile:
-        csvWriter = csv.writer(csvfile, delimiter="    ", lineterminator="\n")
+        csvWriter = csv.writer(csvfile, delimiter=";", lineterminator="\n")
         for i in range(len(time)):
-            csvWriter.writerow([time[i], format(air[i], ".1f"), level, lat, long])
+            # Warning! Datetime shrinks by T separator to cut time
+            csvWriter.writerow([time[i], format(air[i], ".3f"), level, lat, long])
             
 def routineOverAllFilesInPath(sourcePath, targetFile, lat, long, level):
     # Get list in files
