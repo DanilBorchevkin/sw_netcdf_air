@@ -7,6 +7,7 @@ NetCDF parser for air temperature by time with constant level, lat and long
 
 import xarray as xr
 import csv
+import fileinput
 import glob
 import tkinter as tk
 from tkinter import filedialog
@@ -172,6 +173,17 @@ def getFilesInFolder(pathToFolder, fileFormat):
     
     return result
 
+def replaceStringInFile(targetFile, oldString, newString):
+    filedata = []
+    with open(targetFile, "r") as file:
+        filedata = file.readlines()
+        
+    for line in filedata:    
+        line.replace(oldString, newString)
+    
+    with open(targetFile, "w") as file:
+        file.write(filedata)
+
 def selectDataAndSave(fin, lat, long, level, fout):
     # Open dataset
     ds = xr.open_dataset(fin)
@@ -186,20 +198,36 @@ def selectDataAndSave(fin, lat, long, level, fout):
     air = dsday['air'].data
 
     # There is some tricky moment. If file is exist then data will append to file
-    # Append data to CSV file
-    with open(fout, 'a') as csvfile:
-        csvWriter = csv.writer(csvfile, delimiter=";", lineterminator="\n")
+    # Append data to file
+    with open(fout, 'a') as file:
+        dlm = "    "
+        #csvWriter = csv.writer(csvfile, delimiter=";", lineterminator="\n")
         for i in range(len(time)):
-            # Warning! Datetime shrinks by T separator to cut time
-            csvWriter.writerow([time[i], format(air[i], ".3f"), level, lat, long])
-            
+            # When we use CSV we can't use delimeter with several chars
+            # So in this case we use "bare-metal" write
+            file.write(str(time[i]) + 
+                       dlm + 
+                       format(air[i], ".3f") + 
+                       dlm +
+                       str(level) + 
+                       dlm +
+                       str(lat) +
+                       dlm + 
+                       str(long) +
+                       "\n"
+                       )
+    
 def routineOverAllFilesInPath(sourcePath, targetFile, lat, long, level):
     # Get list in files
     files = getFilesInFolder(sourcePath, "nc")
     
     # Iteration over all files
     for file in files:
-        selectDataAndSave(fin=file, lat=lat, long=long, level=level, fout=targetFile)
+        selectDataAndSave(fin=file, 
+                          lat=lat, 
+                          long=long, 
+                          level=level, 
+                          fout=targetFile)
     
 def main():
     root = tk.Tk()

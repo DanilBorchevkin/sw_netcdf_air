@@ -46,13 +46,13 @@ Afrer successful compiling you can start the script as standalone app.
 On this link - NCEP Reanalysis pressure - ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/pressure/. ***This script works only with air.yyyy.nc files!***
 
 ## Scheme of the result data
-For result file used CSV ASCII file (delimeter - ","). Columns writes as following:
+For result file used CSV ASCII file (delimeter - "    " - 4x space). Columns writes as following:
 
 1. Time in human readable format
 2. Temp of air, degK
 3. Level, mBar
-4. Latitude
-5. Longitude
+4. Latitude, deg
+5. Longitude, deg
 
 ## Feedback
 
